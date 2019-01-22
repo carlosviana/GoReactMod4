@@ -1,46 +1,67 @@
-import React from "react";
+import React, { Component } from "react";
+
+import PropTypes from "prop-types";
+
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { Creators as PlaylistsActions } from "../../store/ducks/playlists";
+
+import Loading from "../../components/Loading";
 
 import { Container, Title, List, PlayList } from "./styles";
 
-const Browse = () => (
-    <Container>
-        <Title>Navegar</Title>
+class Browse extends Component {
+    static propTypes = {
+        getPlaylistsRequest: PropTypes.func.isRequired,
+        playlists: PropTypes.shape({
+            data: PropTypes.arrayOf(
+                PropTypes.shape({
+                    id: PropTypes.number,
+                    title: PropTypes.string,
+                    thumbnail: PropTypes.string,
+                    description: PropTypes.string
+                })
+            ),
+            loading: PropTypes.bool
+        }).isRequired
+    };
 
-        <List>
-            <PlayList to="/playlists/1">
-                <img
-                    src="https://http2.mlstatic.com/jorge-arago-20-musicas-do-seculo-x-x-serie-millennium-D_NQ_NP_942611-MLB20583386384_022016-F.jpg"
-                    alt="Jorge Aragão"
-                />
-                <strong>Samba das antigas</strong>
-                <p>Curta sua festa com samba da melhor qualidade.</p>
-            </PlayList>
-            <PlayList to="/playlists/1">
-                <img
-                    src="https://http2.mlstatic.com/jorge-arago-20-musicas-do-seculo-x-x-serie-millennium-D_NQ_NP_942611-MLB20583386384_022016-F.jpg"
-                    alt="Jorge Aragão"
-                />
-                <strong>Samba das antigas</strong>
-                <p>Curta sua festa com samba da melhor qualidade.</p>
-            </PlayList>
-            <PlayList to="/playlists/1">
-                <img
-                    src="https://http2.mlstatic.com/jorge-arago-20-musicas-do-seculo-x-x-serie-millennium-D_NQ_NP_942611-MLB20583386384_022016-F.jpg"
-                    alt="Jorge Aragão"
-                />
-                <strong>Samba das antigas</strong>
-                <p>Curta sua festa com samba da melhor qualidade.</p>
-            </PlayList>
-            <PlayList to="/playlists/1">
-                <img
-                    src="https://http2.mlstatic.com/jorge-arago-20-musicas-do-seculo-x-x-serie-millennium-D_NQ_NP_942611-MLB20583386384_022016-F.jpg"
-                    alt="Jorge Aragão"
-                />
-                <strong>Samba das antigas</strong>
-                <p>Curta sua festa com samba da melhor qualidade.</p>
-            </PlayList>
-        </List>
-    </Container>
-);
+    componentDidMount() {
+        this.props.getPlaylistsRequest();
+    }
 
-export default Browse;
+    render() {
+        return (
+            <Container>
+                <Title>
+                    Navegar {this.props.playlists.loading && <Loading />}
+                </Title>
+
+                <List>
+                    {this.props.playlists.data.map(playlist => (
+                        <PlayList to={`playlists/${playlist.id}`}>
+                            <img
+                                src={playlist.thumbnail}
+                                alt={playlist.title}
+                            />
+                            <strong>{playlist.title}</strong>
+                            <p>{playlist.description}</p>
+                        </PlayList>
+                    ))}
+                </List>
+            </Container>
+        );
+    }
+}
+
+const mapStateToProps = state => ({
+    playlists: state.playlists
+});
+
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(PlaylistsActions, dispatch);
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Browse);

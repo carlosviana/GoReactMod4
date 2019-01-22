@@ -9,6 +9,8 @@ import { Creators as PlaylistsActions } from "../../store/ducks/playlists";
 
 import { Container, NewPlaylist, Nav } from "./styles";
 
+import Loading from "../../components/Loading";
+
 import AddPlaylistIcon from "../../assets/images/add_playlist.svg";
 
 class Sidebar extends Component {
@@ -20,7 +22,8 @@ class Sidebar extends Component {
                     id: PropTypes.number,
                     title: PropTypes.string
                 })
-            )
+            ),
+            loading: PropTypes.bool
         }).isRequired
     };
 
@@ -34,7 +37,7 @@ class Sidebar extends Component {
                 <div>
                     <Nav main>
                         <li>
-                            <a href="">Navegar</a>
+                            <Link to="/">Navegar</Link>
                         </li>
                         <li>
                             <a href="">Rádio</a>
@@ -46,9 +49,6 @@ class Sidebar extends Component {
                             <span>SUA BIBLIOTECA</span>
                         </li>
                         <li>
-                            <a href="">Seu dialy mix</a>
-                        </li>
-                        <li>
                             <a href="">Tocados recentemente</a>
                         </li>
                         <li>
@@ -56,15 +56,6 @@ class Sidebar extends Component {
                         </li>
                         <li>
                             <a href="">Álbuns</a>
-                        </li>
-                        <li>
-                            <a href="">Artistas</a>
-                        </li>
-                        <li>
-                            <a href="">Estações</a>
-                        </li>
-                        <li>
-                            <a href="">Arquivos locais</a>
                         </li>
                         <li>
                             <a href="">Vídeos</a>
@@ -76,10 +67,11 @@ class Sidebar extends Component {
                     <Nav>
                         <li>
                             <span>PLAYLISTS</span>
+                            {this.props.playlists.loading && <Loading />}
                         </li>
                         {this.props.playlists.data.map(playlist => (
                             <li key={playlist.id}>
-                                <Link to={`playlists/${playlist.id}`}>
+                                <Link to={`/playlists/${playlist.id}`}>
                                     {playlist.title}
                                 </Link>
                             </li>
