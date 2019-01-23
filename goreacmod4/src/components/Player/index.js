@@ -1,6 +1,12 @@
-import React from "react";
-
+import React, { Fragment } from "react";
+import Sound from "react-sound";
 import Slider from "rc-slider";
+
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { Creators as PlayerActions } from "../../store/ducks/player";
+
+import PropTypes from "prop-types";
 
 import {
     Container,
@@ -20,19 +26,24 @@ import PauseIcon from "../../assets/images/pause.svg";
 import ForwardIcon from "../../assets/images/forward.svg";
 import RepeatIcon from "../../assets/images/repeat.svg";
 
-const Player = () => (
+const Player = ({ player, play, pause }) => (
     <Container>
+        {!!player.currentSong && (
+            <Sound url={player.currentSong.file} playStatus={player.status} />
+        )}
         <Current>
-            <img
-                src={
-                    "https://http2.mlstatic.com/jorge-arago-20-musicas-do-seculo-x-x-serie-millennium-D_NQ_NP_942611-MLB20583386384_022016-F.jpg"
-                }
-                alt={"Jorge Aragão"}
-            />
-            <div>
-                <span>Papel de pão</span>
-                <small>Jorge Aragão</small>
-            </div>
+            {!!player.currentSong && (
+                <Fragment>
+                    <img
+                        src={player.currentSong.thumbnail}
+                        alt={player.currentSong.title}
+                    />
+                    <div>
+                        <span>{player.currentSong.title}</span>
+                        <small>{player.currentSong.author}</small>
+                    </div>
+                </Fragment>
+            )}
         </Current>
 
         <Progress>
@@ -43,9 +54,16 @@ const Player = () => (
                 <button>
                     <img src={Backwardcon} alt="Shuffle" />
                 </button>
-                <button>
-                    <img src={PlayIcon} alt="Shuffle" />
-                </button>
+                {!!player.currentSong &&
+                player.status === Sound.status.PLAYING ? (
+                    <button onClick={pause}>
+                        <img src={PauseIcon} alt="Shuffle" />
+                    </button>
+                ) : (
+                    <button onClick={play}>
+                        <img src={PlayIcon} alt="Shuffle" />
+                    </button>
+                )}
                 <button>
                     <img src={ForwardIcon} alt="Shuffle" />
                 </button>
@@ -79,4 +97,28 @@ const Player = () => (
     </Container>
 );
 
-export default Player;
+Player.propTypes = {
+    player: PropTypes.shape({
+        currentSong: PropTypes.shape({
+            file: PropTypes.string,
+            status: PropTypes.string,
+            thumbnail: PropTypes.string,
+            title: PropTypes.string,
+            author: PropTypes.string
+        })
+    }).isRequired,
+    play: PropTypes.func.isRequired,
+    pause: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+    player: state.player
+});
+
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(PlayerActions, dispatch);
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Player);
